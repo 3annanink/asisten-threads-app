@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asisten Threads - Multi-Platform Affiliate Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom scrollbar untuk area teks */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        /* Animasi loading */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+        .loading-sparkle { animation: pulse-ring 2s infinite; }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 font-sans min-h-screen flex flex-col items-center p-4 md:p-8">
+<!-- === AWAL KODE GEMBOK === -->
+<div id="gembok-layar" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f9fafb; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; font-family: sans-serif;">
+  <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; max-width: 400px; width: 90%;">
+    <h2 style="margin-top: 0; color: #333;">Akses Asisten Threads</h2>
+    <p style="color: #666; margin-bottom: 20px;">Masukkan Access Code yang Anda dapatkan dari pembelian.</p>
+    
+    <input type="password" id="input-kode" placeholder="Ketik kode di sini..." style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px;">
+    
+    <button onclick="cekKode()" style="background-color: #111; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;">Buka Aplikasi</button>
+    
+    <p id="pesan-error" style="color: red; display: none; margin-top: 15px; font-size: 14px;">Kode salah, silakan coba lagi.</p>
+  </div>
+</div>
+
+<script>
+  function cekKode() {
+    const kodeUser = document.getElementById("input-kode").value;
+    
+    // GANTI TEKS DI BAWAH INI DENGAN PASSWORD RAHASIAMU
+    const kodeRahasia = "THREADS2026"; 
+
+    if (kodeUser === kodeRahasia) {
+      // Jika kode benar, hilangkan gembok layar
+      document.getElementById("gembok-layar").style.display = "none";
+    } else {
+      // Jika kode salah, munculkan peringatan
+      document.getElementById("pesan-error").style.display = "block";
+    }
+  }
+</script>
+<!-- === AKHIR KODE GEMBOK === -->
+
+    <!-- Header / Navbar -->
+    <div class="w-full max-w-2xl flex justify-between items-center mb-8 px-2">
+        <div class="flex items-center gap-3">
+            <div class="bg-white text-black p-2 rounded-xl shadow-lg">
+                <i class="fa-solid fa-robot text-xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-wide">Asisten<br><span class="text-indigo-400">Threads</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="bg-[#1e293b] hover:bg-[#334155] px-4 py-2 rounded-full text-sm font-medium text-indigo-300 flex items-center gap-2 border border-[#334155] transition-colors">
+                <i class="fa-solid fa-paper-plane"></i> <span class="hidden sm:inline">Kritik & Saran</span>
+            </button>
+            <button class="text-slate-400 hover:text-yellow-400 transition-colors">
+                <i class="fa-solid fa-sun text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Form Card -->
+    <div class="w-full max-w-2xl bg-[#1e293b] rounded-3xl p-6 md:p-8 border border-[#334155] shadow-2xl relative overflow-hidden">
+        
+        <!-- Tabs Navigation -->
+        <div class="flex border-b border-[#334155] mb-6">
+            <button id="btn-tab-utas" onclick="switchTab('utas')" class="flex-1 pb-3 text-center border-b-2 border-indigo-500 text-indigo-400 font-semibold transition-colors flex justify-center items-center gap-2">
+                <i class="fa-solid fa-pen-to-square"></i> Buat Utas
+            </button>
+            <button id="btn-tab-komen" onclick="switchTab('komen')" class="flex-1 pb-3 text-center border-b-2 border-transparent text-slate-500 hover:text-slate-400 font-semibold transition-colors flex justify-center items-center gap-2">
+                <i class="fa-solid fa-comment-dots"></i> Balas Utas Orang
+            </button>
+        </div>
+
+        <!-- TAB 1: BUAT UTAS -->
+        <div id="tab-utas" class="block">
+            <!-- Input Topik -->
+            <div class="mb-6">
+                <textarea id="topicInput" class="w-full bg-[#0f172a] border border-[#334155] rounded-2xl p-5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none shadow-inner" rows="4" placeholder="Contoh: Tips memasak rendang empuk, rahasia bumbu meresap, dan panci yang cocok..."></textarea>
+                
+                <!-- Pilihan Topik Cepat -->
+                <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-medium text-slate-400 mr-1"><i class="fa-solid fa-lightbulb text-yellow-500 mr-1"></i> Ide Topik Organik:</span>
+                    <button onclick="setTopic('Motivasi pagi & Self-Improvement')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Motivasi</button>
+                    <button onclick="setTopic('Unpopular Opinion tentang kehidupan/karir')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Opini Populer</button>
+                    <button onclick="setTopic('Pertanyaan interaktif santai untuk followers')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Interaktif</button>
+                    <button onclick="setTopic('Life hacks sehari-hari yang jarang diketahui')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Life Hacks</button>
+                    <button onclick="setTopic('Cerita lucu / kejadian memalukan')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Cerita Lucu</button>
+                    <button onclick="setTopic('Rekomendasi film/series/lagu favorit akhir pekan')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Rekomendasi</button>
+                    <button onclick="setTopic('Nostalgia jaman sekolah / masa kecil')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Nostalgia</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="mb-6">
+            <div class="flex items-center justify-center w-full">
+                <label for="imageUpload" class="flex flex-col items-center justify-center w-full h-40 border-2 border-[#334155] border-dashed rounded-2xl cursor-pointer bg-[#0f172a] hover:bg-[#162032] transition-colors relative overflow-hidden group" id="dropzone">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center" id="uploadPlaceholder">
+                        <i class="fa-solid fa-image text-4xl text-slate-500 mb-3 group-hover:text-indigo-400 transition-colors"></i>
+                        <p class="mb-2 text-sm text-slate-400"><span class="font-semibold text-indigo-400">Klik untuk unggah foto</span> (Opsional)</p>
+                        <p class="text-xs text-slate-500">AI akan mengenali foto produkmu</p>
+                    </div>
+                    <!-- Preview Image -->
+                    <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-contain bg-[#0f172a] p-2" />
+                    <!-- Tombol Hapus -->
+                    <button id="removeImageBtn" class="hidden absolute top-3 right-3 bg-red-500/90 hover:bg-red-600 text-white w-8 h-8 rounded-lg transition-colors z-20 flex justify-center items-center shadow-lg" onclick="removeImage(event)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </label>
+                <input id="imageUpload" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" onchange="handleImageUpload(event)" />
+            </div>
+        </div>
+
+        <!-- Box Affiliate Mode -->
+        <div class="border border-[#334155] rounded-2xl p-5 mb-6 bg-[#162032] transition-all duration-300" id="affiliateBox">
+            <div class="flex justify-between items-center mb-5 cursor-pointer" onclick="toggleAffiliate()">
+                <div class="flex items-center gap-3 font-semibold text-white">
+                    <i class="fa-solid fa-bag-shopping text-slate-400"></i> Mode Promosi / Affiliate
+                </div>
+                <!-- Custom Checkbox -->
+                <div class="relative w-6 h-6 rounded border border-slate-500 flex justify-center items-center cursor-pointer transition-colors" id="affiliateCheckbox">
+                    <i class="fa-solid fa-check text-white text-sm hidden" id="affiliateCheckIcon"></i>
+                </div>
+            </div>
+            
+            <div id="affiliateInputs" class="space-y-4">
+                <!-- Pilihan Platform -->
+                <div class="relative">
+                    <select id="affiliatePlatform" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                        <option value="Shopee">🛍️ Shopee Affiliate</option>
+                        <option value="Amazon">📦 Amazon Affiliate</option>
+                        <option value="Lainnya">🌐 Toko Lainnya / Link Umum</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                </div>
+                
+                <input type="text" id="productName" placeholder="Nama Produk/Layanan (Contoh: Panci Presto / E-Course)" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner">
+                
+                <input type="text" id="productLink" placeholder="Link Produk (Contoh: amzn.to / shp.ee / tokomu.com)" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner">
+            </div>
+        </div>
+
+        <!-- Dropdowns Style, Length, & Language -->
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <div class="relative flex-1">
+                <select id="threadLanguage" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                    <option value="id">🇮🇩 Bahasa Indonesia</option>
+                    <option value="en">🇺🇸 English</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+            </div>
+            <div class="relative flex-1">
+                <select id="threadStyle" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                    <option value="informatif">Informatif & Edukatif</option>
+                    <option value="santai">Santai & Lucu (Gen-Z)</option>
+                    <option value="storytelling">Storytelling (Bercerita)</option>
+                    <option value="fomo">Hard Selling / FOMO</option>
+                    <option value="interaktif">Interaktif (Mengundang Komentar)</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+            </div>
+            <div class="relative flex-1">
+                <select id="threadLength" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                    <option value="satu_utas">Hanya 1 Utas (Tunggal)</option>
+                    <option value="sangat_pendek">Sangat Pendek (1-2 Utas)</option>
+                    <option value="pendek">Pendek (3-4 Utas)</option>
+                    <option value="sedang" selected>Sedang (5-7 Utas)</option>
+                    <option value="panjang">Panjang (8-10 Utas)</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button id="generateBtn" onclick="generateThread()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_25px_rgba(79,70,229,0.6)]">
+            <i class="fa-solid fa-wand-magic-sparkles" id="btnIcon"></i> 
+            <span id="btnText">Buat Utas Sekarang</span>
+        </button>
+
+    </div> <!-- Tutup Tab 1 -->
+
+    <!-- TAB 2: BALAS KOMENTAR (FITUR BARU) -->
+        <div id="tab-komen" class="hidden">
+            <!-- Input Utas Orang -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-300 mb-3"><i class="fa-solid fa-quote-left text-indigo-400 mr-2"></i> Paste utas/komentar target:</label>
+                <textarea id="targetCommentInput" class="w-full bg-[#0f172a] border border-[#334155] rounded-2xl p-5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none shadow-inner" rows="4" placeholder="Contoh: Jujurly capek banget kerja kantoran, pengen buka usaha aja..."></textarea>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                <!-- Language Dropdown -->
+                <div class="relative flex-1">
+                    <select id="replyLanguage" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                        <option value="id">🇮🇩 Bahasa Indonesia</option>
+                        <option value="en">🇺🇸 English</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                </div>
+                <div class="relative flex-1">
+                    <select id="replyTone" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                        <option value="setuju">🤝 Setuju / Relatable</option>
+                        <option value="lucu">😂 Santai / Jokes / Sarkas Tipis</option>
+                        <option value="bertanya">🤔 Memancing Diskusi (Tanya Balik)</option>
+                        <option value="apresiasi">✨ Memberi Pujian / Semangat</option>
+                        <option value="berlawanan">🔥 Berbeda Pendapat (Oposisi Halus)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                </div>
+            </div>
+
+            <!-- Generate Button for Reply -->
+            <button id="generateReplyBtn" onclick="generateReply()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_25px_rgba(79,70,229,0.6)]">
+                <i class="fa-solid fa-reply-all" id="btnReplyIcon"></i> 
+                <span id="btnReplyText">Buat Ide Balasan</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Area Hasil Generasi (Sembunyi by default) -->
+    <div id="resultArea" class="w-full max-w-2xl mt-8 hidden flex-col gap-4">
+        <h3 class="text-xl font-bold text-white mb-2 flex justify-between items-center">
+            <span><i class="fa-brands fa-threads text-white mr-2"></i> Hasil Utas Kamu</span>
+            <button onclick="copyAll()" class="text-sm bg-[#334155] hover:bg-[#475569] px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2">
+                <i class="fa-regular fa-copy"></i> Salin Semua
+            </button>
+        </h3>
+        <div id="threadContainer" class="flex flex-col gap-4">
+            <!-- Utas akan dimuat di sini -->
+        </div>
+    </div>
+
+    <!-- Notifikasi Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white px-6 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMsg">Teks berhasil disalin!</span>
+    </div>
+
+    <script>
+        // Kunci API (disediakan oleh environment)
+        const apiKey = "";
+        
+        // State Affiliate Mode
+        let isAffiliateMode = true;
+
+        // State Image
+        let uploadedImageBase64 = null;
+        let uploadedImageMimeType = null;
+
+        // Inisialisasi UI
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAffiliateUI();
+        });
+
+        // Fitur Tab Navigation
+        function switchTab(tab) {
+            const tabUtas = document.getElementById('tab-utas');
+            const tabKomen = document.getElementById('tab-komen');
+            const btnUtas = document.getElementById('btn-tab-utas');
+            const btnKomen = document.getElementById('btn-tab-komen');
+            const resultArea = document.getElementById('resultArea');
+
+            // Sembunyikan hasil sebelumnya saat ganti tab
+            resultArea.classList.add('hidden');
+
+            if (tab === 'utas') {
+                tabUtas.classList.remove('hidden');
+                tabUtas.classList.add('block');
+                tabKomen.classList.add('hidden');
+                tabKomen.classList.remove('block');
+                
+                btnUtas.className = "flex-1 pb-3 text-center border-b-2 border-indigo-500 text-indigo-400 font-semibold transition-colors flex justify-center items-center gap-2";
+                btnKomen.className = "flex-1 pb-3 text-center border-b-2 border-transparent text-slate-500 hover:text-slate-400 font-semibold transition-colors flex justify-center items-center gap-2";
+            } else {
+                tabKomen.classList.remove('hidden');
+                tabKomen.classList.add('block');
+                tabUtas.classList.add('hidden');
+                tabUtas.classList.remove('block');
+                
+                btnKomen.className = "flex-1 pb-3 text-center border-b-2 border-indigo-500 text-indigo-400 font-semibold transition-colors flex justify-center items-center gap-2";
+                btnUtas.className = "flex-1 pb-3 text-center border-b-2 border-transparent text-slate-500 hover:text-slate-400 font-semibold transition-colors flex justify-center items-center gap-2";
+            }
+        }
+
+        // Toggle Affiliate Mode
+        function toggleAffiliate() {
+            isAffiliateMode = !isAffiliateMode;
+            updateAffiliateUI();
+        }
+
+        function updateAffiliateUI() {
+            const checkbox = document.getElementById('affiliateCheckbox');
+            const icon = document.getElementById('affiliateCheckIcon');
+            const inputs = document.getElementById('affiliateInputs');
+            const box = document.getElementById('affiliateBox');
+
+            if (isAffiliateMode) {
+                checkbox.classList.add('bg-indigo-500', 'border-indigo-500');
+                checkbox.classList.remove('border-slate-500');
+                icon.classList.remove('hidden');
+                inputs.style.display = 'block';
+                box.classList.add('border-indigo-500/50');
+            } else {
+                checkbox.classList.remove('bg-indigo-500', 'border-indigo-500');
+                checkbox.classList.add('border-slate-500');
+                icon.classList.add('hidden');
+                inputs.style.display = 'none';
+                box.classList.remove('border-indigo-500/50');
+            }
+        }
+
+        // Set Topik Cepat
+        function setTopic(text) {
+            const topicInput = document.getElementById('topicInput');
+            topicInput.value = text;
+            
+            // Matikan mode affiliate otomatis untuk fokus ke konten organik
+            if (isAffiliateMode) {
+                toggleAffiliate();
+                showToast('Affiliate Mode dimatikan untuk konten organik');
+            }
+            
+            // Efek visual highlight
+            topicInput.classList.add('border-indigo-500', 'ring-1', 'ring-indigo-500');
+            setTimeout(() => {
+                topicInput.classList.remove('border-indigo-500', 'ring-1', 'ring-indigo-500');
+            }, 500);
+        }
+
+        // Fitur Image Upload
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validasi ukuran (maks 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Ukuran gambar maksimal 5MB', true);
+                event.target.value = '';
+                return;
+            }
+
+            uploadedImageMimeType = file.type;
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                uploadedImageBase64 = e.target.result;
+                
+                // Tampilkan preview
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+                document.getElementById('imagePreview').src = uploadedImageBase64;
+                document.getElementById('imagePreview').classList.remove('hidden');
+                document.getElementById('removeImageBtn').classList.remove('hidden');
+                document.getElementById('dropzone').classList.remove('border-dashed');
+                document.getElementById('dropzone').classList.add('border-indigo-500');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(event) {
+            event.preventDefault(); // Mencegah trigger label (buka file explorer lagi)
+            event.stopPropagation();
+            
+            uploadedImageBase64 = null;
+            uploadedImageMimeType = null;
+            document.getElementById('imageUpload').value = '';
+            
+            // Kembalikan ke tampilan awal
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('removeImageBtn').classList.add('hidden');
+            document.getElementById('dropzone').classList.add('border-dashed');
+            document.getElementById('dropzone').classList.remove('border-indigo-500');
+        }
+
+        // Tampilkan Toast Notifikasi
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            
+            toastMsg.textContent = message;
+            
+            if (isError) {
+                toast.classList.replace('bg-emerald-600', 'bg-red-600');
+                toast.querySelector('i').classList.replace('fa-circle-check', 'fa-circle-exclamation');
+            } else {
+                toast.classList.replace('bg-red-600', 'bg-emerald-600');
+                toast.querySelector('i').classList.replace('fa-circle-exclamation', 'fa-circle-check');
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Fungsi Salin Teks
+        function copyText(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Utas berhasil disalin!');
+            } catch (err) {
+                showToast('Gagal menyalin teks', true);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Salin Semua Utas
+        function copyAll() {
+            const threadCards = document.querySelectorAll('.thread-content');
+            let fullText = '';
+            threadCards.forEach((card, index) => {
+                fullText += card.innerText + '\n\n';
+            });
+            copyText(fullText.trim());
+        }
+
+        // Fungsi Memanggil Gemini API
+        async function callGeminiAPI(prompt, base64Img = null, mimeType = null) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            // Susun muatan (payload) yang bisa menerima teks dan gambar sekaligus
+            const parts = [{ text: prompt }];
+            if (base64Img && mimeType) {
+                parts.push({
+                    inlineData: {
+                        mimeType: mimeType,
+                        data: base64Img.split(',')[1] // Buang awalan data:image/...
+                    }
+                });
+            }
+
+            const payload = {
+                contents: [{ parts: parts }],
+                systemInstruction: { 
+                    parts: [{ 
+                        text: "Kamu adalah asisten social media expert dan spesialis Affiliate Marketing. Tugasmu adalah membuat draf konten 'Threads' yang natural, engaging, dan tidak kaku. Pisahkan setiap post (utas) dengan pembatas '|||'. Jangan gunakan bahasa yang terlalu robotik. Gunakan emoji secukupnya." 
+                    }] 
+                }
+            };
+
+            // Implementasi Exponential Backoff
+            const maxRetries = 5;
+            const delays = [1000, 2000, 4000, 8000, 16000];
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const data = await response.json();
+                    return data.candidates[0].content.parts[0].text;
+                    
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
+                }
+            }
+        }
+
+        // Proses Utama: Generate Thread
+        async function generateThread() {
+            const topic = document.getElementById('topicInput').value.trim();
+            const style = document.getElementById('threadStyle').options[document.getElementById('threadStyle').selectedIndex].text;
+            const lengthSelect = document.getElementById('threadLength');
+            const lengthVal = lengthSelect.value;
+            const length = lengthSelect.options[lengthSelect.selectedIndex].text;
+            const language = document.getElementById('threadLanguage').value;
+            
+            // Validasi: Topik ATAU Gambar ATAU Affiliate Mode harus ada
+            if (!topic && !uploadedImageBase64 && !isAffiliateMode) {
+                showToast('Harap masukkan teks topik, unggah foto, atau isi nama produk!', true);
+                document.getElementById('topicInput').focus();
+                return;
+            }
+
+            let affiliatePrompt = "";
+            let prodNameStr = "";
+            if (isAffiliateMode) {
+                const platform = document.getElementById('affiliatePlatform').value;
+                const prodName = document.getElementById('productName').value.trim();
+                const prodLink = document.getElementById('productLink').value.trim();
+                
+                if (!prodName || !prodLink) {
+                    showToast('Harap isi Nama dan Link Produk yang ingin dipromosikan!', true);
+                    return;
+                }
+                prodNameStr = prodName;
+                
+                let platformContext = platform === 'Lainnya' ? 'sebuah produk/layanan umum' : `produk affiliate ${platform}`;
+                
+                affiliatePrompt = `\n\n[INSTRUKSI PROMOSI - SANGAT PENTING]\nSaya sedang mempromosikan ${platformContext}. Kamu WAJIB menggunakan teknik SOFT-SELLING tingkat tinggi.\n- JANGAN kentara kalau ini postingan jualan/iklan.\n- Buat awalan utas berupa cerita, tips, opini, atau keluhan sehari-hari yang sangat "relatable" dengan target audiens.\n- Sisipkan produk "${prodName}" BUKAN sebagai bahan promosi langsung, tapi sebagai "rekomendasi jujur" atau "penemuan dari pengalaman pribadi" di pertengahan atau akhir utas.\n- Arahkan pembaca untuk mengecek produknya melalui tautan ini dengan bahasa yang sangat santai: "${prodLink}".`;
+            }
+
+            // Menyusun Prompt
+            let prompt = "";
+            if (uploadedImageBase64) {
+                prompt += `Tolong perhatikan foto/gambar yang saya lampirkan. Buatkan draf konten untuk platform Threads berdasarkan gambar tersebut.\n`;
+                if (topic) prompt += `Arahan tambahan/fokus spesifik dari saya: ${topic}\n`;
+            } else if (topic) {
+                prompt += `Buatkan draf konten untuk platform Threads berdasarkan detail berikut:\nTopik: ${topic}\n`;
+            } else if (isAffiliateMode) {
+                prompt += `Buatkan draf konten (berupa cerita, opini, atau tips) untuk platform Threads yang mengalir natural, namun pada akhirnya menyinggung produk: ${prodNameStr}.\n`;
+            }
+
+            const langInstruction = language === 'en' 
+                ? "TULIS SELURUH UTAS DALAM BAHASA INGGRIS (ENGLISH) yang natural seperti native speaker." 
+                : "TULIS SELURUH UTAS DALAM BAHASA INDONESIA yang gaul/natural sesuai gaya bahasa.";
+
+            let interactivePrompt = "";
+            if (document.getElementById('threadStyle').value === 'interaktif') {
+                interactivePrompt = "\n[INSTRUKSI INTERAKTIF]\nWAJIB akhiri utas dengan pertanyaan terbuka yang kuat untuk memancing audiens membalas/berkomentar di kolom komentar (Call to Action untuk diskusi).";
+            }
+
+            prompt += `
+Gaya Bahasa: ${style}
+Panjang Utas: ${length} ${lengthVal === 'satu_utas' ? '(WAJIB: HANYA BUAT 1 POSTINGAN TUNGGAL SAJA. JANGAN DIBAGI MENJADI BEBERAPA UTAS)' : ''}
+Instruksi Bahasa: ${langInstruction}
+${affiliatePrompt}
+${interactivePrompt}
+
+Aturan format penting:
+1. PISAHKAN setiap bagian utas dengan simbol '|||' (tiga garis vertikal). Jangan gunakan angka penomoran biasa, cukup pisahkan dengan '|||'.
+2. Utas pertama harus sangat *hooking* (menarik perhatian).
+3. Buat pembacaan mengalir seolah-olah ditulis oleh manusia asli, bukan bot.
+4. [SANGAT KRITIS] BATAS KARAKTER: Setiap bagian utas (yang dipisahkan '|||') MAKSIMAL HARUS 450 KARAKTER. Dilarang keras melebihi 500 karakter per bagian karena batas sistem Threads!
+`;
+
+            // UI Loading State
+            const btn = document.getElementById('generateBtn');
+            const btnIcon = document.getElementById('btnIcon');
+            const btnText = document.getElementById('btnText');
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btnIcon.className = "fa-solid fa-spinner fa-spin loading-sparkle";
+            btnText.textContent = "Menyusun Utas Ajaib...";
+            
+            document.getElementById('resultArea').classList.add('hidden');
+            const container = document.getElementById('threadContainer');
+            container.innerHTML = '';
+            
+            // Set judul hasil ke mode utas
+            document.querySelector('#resultArea h3 span').innerHTML = '<i class="fa-brands fa-threads text-white mr-2"></i> Hasil Utas Kamu';
+
+            try {
+                // Panggil API
+                const resultText = await callGeminiAPI(prompt, uploadedImageBase64, uploadedImageMimeType);
+                
+                // Parsing hasil (memisahkan berdasarkan '|||')
+                const threads = resultText.split('|||')
+                                          .map(t => t.trim())
+                                          .filter(t => t.length > 0);
+
+                if (threads.length === 0) throw new Error("Format balasan AI tidak sesuai.");
+
+                // Render ke layar
+                threads.forEach((threadText, index) => {
+                    // Membersihkan potensi markdown tebal (**) jika berlebihan
+                    const cleanText = threadText.replace(/^\d+[\.\/]\d*\s*/, '').trim(); // Hapus jika ada nomor di awal
+                    const charCount = cleanText.length;
+                    const countColorClass = charCount > 500 ? 'text-red-400 font-bold' : 'text-slate-500';
+                    
+                    const card = document.createElement('div');
+                    card.className = "bg-[#1e293b] p-5 rounded-2xl border border-[#334155] shadow-md relative group hover:border-indigo-500/50 transition-colors";
+                    
+                    card.innerHTML = `
+                        <div class="flex items-start gap-4">
+                            <div class="min-w-[40px] h-[40px] rounded-full bg-[#0f172a] border border-[#334155] flex items-center justify-center font-bold text-slate-400">
+                                ${index + 1}
+                            </div>
+                            <div class="w-full">
+                                <p class="text-slate-200 whitespace-pre-wrap thread-content leading-relaxed">${cleanText}</p>
+                                <div class="mt-4 flex justify-between items-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                    <span class="text-xs ${countColorClass}"><i class="fa-solid fa-text-width mr-1"></i> ${charCount}/500</span>
+                                    <button onclick="copyText(this.parentElement.previousElementSibling.innerText)" class="bg-[#334155] hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                                        <i class="fa-regular fa-copy"></i> Salin
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+                // Tampilkan area hasil
+                document.getElementById('resultArea').classList.remove('hidden');
+                
+                // Scroll perlahan ke hasil
+                document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (error) {
+                console.error(error);
+                showToast('Gagal membuat utas. Silakan coba lagi.', true);
+            } finally {
+                // Kembalikan tombol ke semula
+                btn.disabled = false;
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                btnIcon.className = "fa-solid fa-wand-magic-sparkles";
+                btnText.textContent = "Buat Utas Sekarang";
+            }
+        }
+
+        // Proses Utama: Generate Reply (Komentar)
+        async function generateReply() {
+            const targetText = document.getElementById('targetCommentInput').value.trim();
+            const toneSelect = document.getElementById('replyTone');
+            const tone = toneSelect.options[toneSelect.selectedIndex].text;
+            const language = document.getElementById('replyLanguage').value;
+
+            if (!targetText) {
+                showToast('Harap paste utas/komentar target terlebih dahulu!', true);
+                document.getElementById('targetCommentInput').focus();
+                return;
+            }
+
+            const langInstruction = language === 'en' 
+                ? "TULIS SELURUH BALASAN DALAM BAHASA INGGRIS (ENGLISH) kasual medsos yang natural." 
+                : "TULIS SELURUH BALASAN DALAM BAHASA INDONESIA gaul/kasual ala warga Threads.";
+
+            const prompt = `
+Bantu saya membalas sebuah utas/komentar orang lain di Threads agar terjadi interaksi (engagement).
+
+Utas Target: "${targetText}"
+
+Gaya Balasan: ${tone}
+Instruksi Bahasa: ${langInstruction}
+
+Aturan format penting:
+1. Berikan tepat 3 variasi pilihan balasan yang berbeda-beda.
+2. Setiap balasan harus singkat (maksimal 2-3 kalimat), natural, tidak kaku, layaknya interaksi asli manusia di sosmed.
+3. Gunakan emoji secukupnya.
+4. PISAHKAN setiap variasi balasan dengan simbol '|||' (tiga garis vertikal). Jangan berikan kata pengantar, langsung berikan pilihan balasannya yang dipisah oleh '|||'.
+5. [SANGAT KRITIS] BATAS KARAKTER: Setiap variasi balasan TIDAK BOLEH melebihi 400 karakter!
+`;
+
+            // UI Loading State
+            const btn = document.getElementById('generateReplyBtn');
+            const btnIcon = document.getElementById('btnReplyIcon');
+            const btnText = document.getElementById('btnReplyText');
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btnIcon.className = "fa-solid fa-spinner fa-spin loading-sparkle";
+            btnText.textContent = "Mencari Balasan Terbaik...";
+            
+            document.getElementById('resultArea').classList.add('hidden');
+            const container = document.getElementById('threadContainer');
+            container.innerHTML = '';
+
+            // Set judul hasil ke mode komentar
+            document.querySelector('#resultArea h3 span').innerHTML = '<i class="fa-solid fa-reply text-indigo-400 mr-2"></i> Pilihan Ide Balasan Kamu';
+
+            try {
+                const resultText = await callGeminiAPI(prompt);
+                
+                const threads = resultText.split('|||')
+                                          .map(t => t.trim())
+                                          .filter(t => t.length > 0);
+
+                if (threads.length === 0) throw new Error("Format balasan AI tidak sesuai.");
+
+                threads.forEach((threadText, index) => {
+                    const cleanText = threadText.replace(/^\d+[\.\/]\d*\s*/, '').trim(); 
+                    const charCount = cleanText.length;
+                    const countColorClass = charCount > 500 ? 'text-red-400 font-bold' : 'text-slate-500';
+                    
+                    const card = document.createElement('div');
+                    card.className = "bg-[#1e293b] p-5 rounded-2xl border border-[#334155] shadow-md relative group hover:border-indigo-500/50 transition-colors";
+                    
+                    card.innerHTML = `
+                        <div class="flex items-start gap-4">
+                            <div class="min-w-[40px] h-[40px] rounded-full bg-[#0f172a] border border-[#334155] flex items-center justify-center font-bold text-slate-400 text-xs text-center leading-tight">
+                                Opsi<br>${index + 1}
+                            </div>
+                            <div class="w-full">
+                                <p class="text-slate-200 whitespace-pre-wrap thread-content leading-relaxed">${cleanText}</p>
+                                <div class="mt-4 flex justify-between items-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                    <span class="text-xs ${countColorClass}"><i class="fa-solid fa-text-width mr-1"></i> ${charCount}/500</span>
+                                    <button onclick="copyText(this.parentElement.previousElementSibling.innerText)" class="bg-[#334155] hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                                        <i class="fa-regular fa-copy"></i> Salin
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+                document.getElementById('resultArea').classList.remove('hidden');
+                document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (error) {
+                console.error(error);
+                showToast('Gagal membuat balasan. Silakan coba lagi.', true);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                btnIcon.className = "fa-solid fa-reply-all";
+                btnText.textContent = "Buat Ide Balasan";
+            }
+        }
+    </script>
+</body>
+</html>
