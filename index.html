@@ -23,39 +23,73 @@
     </style>
 </head>
 <body class="bg-[#0f172a] text-slate-200 font-sans min-h-screen flex flex-col items-center p-4 md:p-8">
-<!-- === AWAL KODE GEMBOK === -->
-<div id="gembok-layar" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f9fafb; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; font-family: sans-serif;">
-  <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; max-width: 400px; width: 90%;">
-    <h2 style="margin-top: 0; color: #333;">Akses Asisten Threads</h2>
-    <p style="color: #666; margin-bottom: 20px;">Masukkan Access Code yang Anda dapatkan dari pembelian.</p>
-    
-    <input type="password" id="input-kode" placeholder="Ketik kode di sini..." style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px;">
-    
-    <button onclick="cekKode()" style="background-color: #111; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;">Buka Aplikasi</button>
-    
-    <p id="pesan-error" style="color: red; display: none; margin-top: 15px; font-size: 14px;">Kode salah, silakan coba lagi.</p>
-  </div>
-</div>
 
-<script>
-  function cekKode() {
-    const kodeUser = document.getElementById("input-kode").value;
-    
-    // GANTI TEKS DI BAWAH INI DENGAN PASSWORD RAHASIAMU
-    const kodeRahasia = "THREADS2026"; 
+    <div id="layar-setup" class="fixed inset-0 bg-[#0f172a] flex justify-center items-center z-[9999] px-4">
+        
+        <div id="step-1" class="bg-[#1e293b] p-8 md:p-10 rounded-3xl border border-[#334155] text-center w-full max-w-md shadow-2xl block">
+            <h2 class="text-2xl font-bold text-white mb-2">Akses Aplikasi</h2>
+            <p class="text-slate-400 mb-6 text-sm">Masukkan Access Code yang Anda dapatkan dari pembelian.</p>
+            
+            <input type="password" id="input-access-code" placeholder="Ketik Access Code..." class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 mb-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner text-center text-lg tracking-widest">
+            
+            <button onclick="cekAccessCode()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)]">Lanjut</button>
+            
+            <p id="error-access" class="text-red-400 mt-4 text-sm hidden">Kode salah, silakan coba lagi.</p>
+        </div>
 
-    if (kodeUser === kodeRahasia) {
-      // Jika kode benar, hilangkan gembok layar
-      document.getElementById("gembok-layar").style.display = "none";
-    } else {
-      // Jika kode salah, munculkan peringatan
-      document.getElementById("pesan-error").style.display = "block";
-    }
-  }
-</script>
-<!-- === AKHIR KODE GEMBOK === -->
+        <div id="step-2" class="bg-[#1e293b] p-8 md:p-10 rounded-3xl border border-[#334155] text-center w-full max-w-md shadow-2xl hidden">
+            <h2 class="text-2xl font-bold text-white mb-2">Hubungkan AI</h2>
+            <p class="text-slate-400 mb-5 text-sm text-left leading-relaxed">Untuk menyalakan fitur AI, masukkan Google Gemini API Key Anda. (Hanya diperlukan sekali).</p>
+            
+            <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg mb-6 text-left">
+                <p class="text-xs text-emerald-400 m-0"><i class="fa-regular fa-lightbulb mr-1"></i> <strong>Belum punya?</strong> Dapatkan gratis di <a href="https://aistudio.google.com/" target="_blank" class="text-emerald-300 underline hover:text-white transition-colors">Google AI Studio</a>.</p>
+            </div>
 
-    <!-- Header / Navbar -->
+            <input type="password" id="input-api-key" placeholder="AIzaSy..." class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 mb-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner text-center">
+            
+            <button onclick="simpanDanMulai()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]">Simpan & Mulai Aplikasi</button>
+        </div>
+    </div>
+
+    <script>
+        // GANTI TEKS DI BAWAH INI DENGAN PASSWORD RAHASIAMU YANG DIJUAL DI LNYK.ID
+        const accessCodeRahasia = "THREADS2026"; 
+
+        function cekAccessCode() {
+            const userInput = document.getElementById("input-access-code").value;
+            if (userInput === accessCodeRahasia) {
+                document.getElementById("error-access").classList.add("hidden");
+                
+                // Cek apakah API Key sudah tersimpan di browser pembeli
+                const apiKeyTersimpan = localStorage.getItem("pembeli_api_key");
+                
+                if (apiKeyTersimpan) {
+                    // Langsung masuk aplikasi utama
+                    document.getElementById("layar-setup").style.display = "none";
+                } else {
+                    // Pindah ke layar input API Key
+                    document.getElementById("step-1").classList.add("hidden");
+                    document.getElementById("step-1").classList.remove("block");
+                    document.getElementById("step-2").classList.remove("hidden");
+                    document.getElementById("step-2").classList.add("block");
+                }
+            } else {
+                document.getElementById("error-access").classList.remove("hidden");
+            }
+        }
+
+        function simpanDanMulai() {
+            const apiKeyInput = document.getElementById("input-api-key").value.trim();
+            if (apiKeyInput === "") {
+                alert("API Key tidak boleh kosong.");
+                return;
+            }
+            // Simpan API Key ke memori browser
+            localStorage.setItem("pembeli_api_key", apiKeyInput);
+            // Masuk ke aplikasi utama
+            document.getElementById("layar-setup").style.display = "none";
+        }
+    </script>
     <div class="w-full max-w-2xl flex justify-between items-center mb-8 px-2">
         <div class="flex items-center gap-3">
             <div class="bg-white text-black p-2 rounded-xl shadow-lg">
@@ -73,10 +107,8 @@
         </div>
     </div>
 
-    <!-- Main Form Card -->
     <div class="w-full max-w-2xl bg-[#1e293b] rounded-3xl p-6 md:p-8 border border-[#334155] shadow-2xl relative overflow-hidden">
         
-        <!-- Tabs Navigation -->
         <div class="flex border-b border-[#334155] mb-6">
             <button id="btn-tab-utas" onclick="switchTab('utas')" class="flex-1 pb-3 text-center border-b-2 border-indigo-500 text-indigo-400 font-semibold transition-colors flex justify-center items-center gap-2">
                 <i class="fa-solid fa-pen-to-square"></i> Buat Utas
@@ -86,13 +118,10 @@
             </button>
         </div>
 
-        <!-- TAB 1: BUAT UTAS -->
         <div id="tab-utas" class="block">
-            <!-- Input Topik -->
             <div class="mb-6">
                 <textarea id="topicInput" class="w-full bg-[#0f172a] border border-[#334155] rounded-2xl p-5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none shadow-inner" rows="4" placeholder="Contoh: Tips memasak rendang empuk, rahasia bumbu meresap, dan panci yang cocok..."></textarea>
                 
-                <!-- Pilihan Topik Cepat -->
                 <div class="mt-3 flex flex-wrap items-center gap-2">
                     <span class="text-xs font-medium text-slate-400 mr-1"><i class="fa-solid fa-lightbulb text-yellow-500 mr-1"></i> Ide Topik Organik:</span>
                     <button onclick="setTopic('Motivasi pagi & Self-Improvement')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Motivasi</button>
@@ -104,106 +133,92 @@
                     <button onclick="setTopic('Nostalgia jaman sekolah / masa kecil')" class="text-xs bg-[#1e293b] hover:bg-indigo-600 border border-[#334155] hover:border-indigo-500 text-slate-300 hover:text-white px-3 py-1.5 rounded-full transition-colors">Nostalgia</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Image Upload -->
-        <div class="mb-6">
-            <div class="flex items-center justify-center w-full">
-                <label for="imageUpload" class="flex flex-col items-center justify-center w-full h-40 border-2 border-[#334155] border-dashed rounded-2xl cursor-pointer bg-[#0f172a] hover:bg-[#162032] transition-colors relative overflow-hidden group" id="dropzone">
-                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center" id="uploadPlaceholder">
-                        <i class="fa-solid fa-image text-4xl text-slate-500 mb-3 group-hover:text-indigo-400 transition-colors"></i>
-                        <p class="mb-2 text-sm text-slate-400"><span class="font-semibold text-indigo-400">Klik untuk unggah foto</span> (Opsional)</p>
-                        <p class="text-xs text-slate-500">AI akan mengenali foto produkmu</p>
+            <div class="mb-6">
+                <div class="flex items-center justify-center w-full">
+                    <label for="imageUpload" class="flex flex-col items-center justify-center w-full h-40 border-2 border-[#334155] border-dashed rounded-2xl cursor-pointer bg-[#0f172a] hover:bg-[#162032] transition-colors relative overflow-hidden group" id="dropzone">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center" id="uploadPlaceholder">
+                            <i class="fa-solid fa-image text-4xl text-slate-500 mb-3 group-hover:text-indigo-400 transition-colors"></i>
+                            <p class="mb-2 text-sm text-slate-400"><span class="font-semibold text-indigo-400">Klik untuk unggah foto</span> (Opsional)</p>
+                            <p class="text-xs text-slate-500">AI akan mengenali foto produkmu</p>
+                        </div>
+                        <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-contain bg-[#0f172a] p-2" />
+                        <button id="removeImageBtn" class="hidden absolute top-3 right-3 bg-red-500/90 hover:bg-red-600 text-white w-8 h-8 rounded-lg transition-colors z-20 flex justify-center items-center shadow-lg" onclick="removeImage(event)">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </label>
+                    <input id="imageUpload" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" onchange="handleImageUpload(event)" />
+                </div>
+            </div>
+
+            <div class="border border-[#334155] rounded-2xl p-5 mb-6 bg-[#162032] transition-all duration-300" id="affiliateBox">
+                <div class="flex justify-between items-center mb-5 cursor-pointer" onclick="toggleAffiliate()">
+                    <div class="flex items-center gap-3 font-semibold text-white">
+                        <i class="fa-solid fa-bag-shopping text-slate-400"></i> Mode Promosi / Affiliate
                     </div>
-                    <!-- Preview Image -->
-                    <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-contain bg-[#0f172a] p-2" />
-                    <!-- Tombol Hapus -->
-                    <button id="removeImageBtn" class="hidden absolute top-3 right-3 bg-red-500/90 hover:bg-red-600 text-white w-8 h-8 rounded-lg transition-colors z-20 flex justify-center items-center shadow-lg" onclick="removeImage(event)">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </label>
-                <input id="imageUpload" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" onchange="handleImageUpload(event)" />
+                    <div class="relative w-6 h-6 rounded border border-slate-500 flex justify-center items-center cursor-pointer transition-colors" id="affiliateCheckbox">
+                        <i class="fa-solid fa-check text-white text-sm hidden" id="affiliateCheckIcon"></i>
+                    </div>
+                </div>
+                
+                <div id="affiliateInputs" class="space-y-4">
+                    <div class="relative">
+                        <select id="affiliatePlatform" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                            <option value="Shopee">🛍️ Shopee Affiliate</option>
+                            <option value="Amazon">📦 Amazon Affiliate</option>
+                            <option value="Lainnya">🌐 Toko Lainnya / Link Umum</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                    </div>
+                    
+                    <input type="text" id="productName" placeholder="Nama Produk/Layanan (Contoh: Panci Presto / E-Course)" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner">
+                    
+                    <input type="text" id="productLink" placeholder="Link Produk (Contoh: amzn.to / shp.ee / tokomu.com)" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner">
+                </div>
             </div>
-        </div>
 
-        <!-- Box Affiliate Mode -->
-        <div class="border border-[#334155] rounded-2xl p-5 mb-6 bg-[#162032] transition-all duration-300" id="affiliateBox">
-            <div class="flex justify-between items-center mb-5 cursor-pointer" onclick="toggleAffiliate()">
-                <div class="flex items-center gap-3 font-semibold text-white">
-                    <i class="fa-solid fa-bag-shopping text-slate-400"></i> Mode Promosi / Affiliate
-                </div>
-                <!-- Custom Checkbox -->
-                <div class="relative w-6 h-6 rounded border border-slate-500 flex justify-center items-center cursor-pointer transition-colors" id="affiliateCheckbox">
-                    <i class="fa-solid fa-check text-white text-sm hidden" id="affiliateCheckIcon"></i>
-                </div>
-            </div>
-            
-            <div id="affiliateInputs" class="space-y-4">
-                <!-- Pilihan Platform -->
-                <div class="relative">
-                    <select id="affiliatePlatform" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
-                        <option value="Shopee">🛍️ Shopee Affiliate</option>
-                        <option value="Amazon">📦 Amazon Affiliate</option>
-                        <option value="Lainnya">🌐 Toko Lainnya / Link Umum</option>
+            <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                <div class="relative flex-1">
+                    <select id="threadLanguage" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                        <option value="id">🇮🇩 Bahasa Indonesia</option>
+                        <option value="en">🇺🇸 English</option>
                     </select>
                     <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                 </div>
-                
-                <input type="text" id="productName" placeholder="Nama Produk/Layanan (Contoh: Panci Presto / E-Course)" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner">
-                
-                <input type="text" id="productLink" placeholder="Link Produk (Contoh: amzn.to / shp.ee / tokomu.com)" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner">
+                <div class="relative flex-1">
+                    <select id="threadStyle" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                        <option value="informatif">Informatif & Edukatif</option>
+                        <option value="santai">Santai & Lucu (Gen-Z)</option>
+                        <option value="storytelling">Storytelling (Bercerita)</option>
+                        <option value="fomo">Hard Selling / FOMO</option>
+                        <option value="interaktif">Interaktif (Mengundang Komentar)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                </div>
+                <div class="relative flex-1">
+                    <select id="threadLength" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
+                        <option value="satu_utas">Hanya 1 Utas (Tunggal)</option>
+                        <option value="sangat_pendek">Sangat Pendek (1-2 Utas)</option>
+                        <option value="pendek">Pendek (3-4 Utas)</option>
+                        <option value="sedang" selected>Sedang (5-7 Utas)</option>
+                        <option value="panjang">Panjang (8-10 Utas)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                </div>
             </div>
-        </div>
 
-        <!-- Dropdowns Style, Length, & Language -->
-        <div class="flex flex-col sm:flex-row gap-4 mb-8">
-            <div class="relative flex-1">
-                <select id="threadLanguage" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
-                    <option value="id">🇮🇩 Bahasa Indonesia</option>
-                    <option value="en">🇺🇸 English</option>
-                </select>
-                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
-            </div>
-            <div class="relative flex-1">
-                <select id="threadStyle" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
-                    <option value="informatif">Informatif & Edukatif</option>
-                    <option value="santai">Santai & Lucu (Gen-Z)</option>
-                    <option value="storytelling">Storytelling (Bercerita)</option>
-                    <option value="fomo">Hard Selling / FOMO</option>
-                    <option value="interaktif">Interaktif (Mengundang Komentar)</option>
-                </select>
-                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
-            </div>
-            <div class="relative flex-1">
-                <select id="threadLength" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
-                    <option value="satu_utas">Hanya 1 Utas (Tunggal)</option>
-                    <option value="sangat_pendek">Sangat Pendek (1-2 Utas)</option>
-                    <option value="pendek">Pendek (3-4 Utas)</option>
-                    <option value="sedang" selected>Sedang (5-7 Utas)</option>
-                    <option value="panjang">Panjang (8-10 Utas)</option>
-                </select>
-                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
-            </div>
-        </div>
+            <button id="generateBtn" onclick="generateThread()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_25px_rgba(79,70,229,0.6)]">
+                <i class="fa-solid fa-wand-magic-sparkles" id="btnIcon"></i> 
+                <span id="btnText">Buat Utas Sekarang</span>
+            </button>
 
-        <!-- Generate Button -->
-        <button id="generateBtn" onclick="generateThread()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_25px_rgba(79,70,229,0.6)]">
-            <i class="fa-solid fa-wand-magic-sparkles" id="btnIcon"></i> 
-            <span id="btnText">Buat Utas Sekarang</span>
-        </button>
-
-    </div> <!-- Tutup Tab 1 -->
-
-    <!-- TAB 2: BALAS KOMENTAR (FITUR BARU) -->
-        <div id="tab-komen" class="hidden">
-            <!-- Input Utas Orang -->
+        </div> <div id="tab-komen" class="hidden">
             <div class="mb-6">
                 <label class="block text-sm font-medium text-slate-300 mb-3"><i class="fa-solid fa-quote-left text-indigo-400 mr-2"></i> Paste utas/komentar target:</label>
                 <textarea id="targetCommentInput" class="w-full bg-[#0f172a] border border-[#334155] rounded-2xl p-5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none shadow-inner" rows="4" placeholder="Contoh: Jujurly capek banget kerja kantoran, pengen buka usaha aja..."></textarea>
             </div>
             
             <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                <!-- Language Dropdown -->
                 <div class="relative flex-1">
                     <select id="replyLanguage" class="w-full bg-[#0f172a] border border-[#334155] rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 appearance-none shadow-inner cursor-pointer">
                         <option value="id">🇮🇩 Bahasa Indonesia</option>
@@ -223,7 +238,6 @@
                 </div>
             </div>
 
-            <!-- Generate Button for Reply -->
             <button id="generateReplyBtn" onclick="generateReply()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_25px_rgba(79,70,229,0.6)]">
                 <i class="fa-solid fa-reply-all" id="btnReplyIcon"></i> 
                 <span id="btnReplyText">Buat Ide Balasan</span>
@@ -232,7 +246,6 @@
 
     </div>
 
-    <!-- Area Hasil Generasi (Sembunyi by default) -->
     <div id="resultArea" class="w-full max-w-2xl mt-8 hidden flex-col gap-4">
         <h3 class="text-xl font-bold text-white mb-2 flex justify-between items-center">
             <span><i class="fa-brands fa-threads text-white mr-2"></i> Hasil Utas Kamu</span>
@@ -241,20 +254,15 @@
             </button>
         </h3>
         <div id="threadContainer" class="flex flex-col gap-4">
-            <!-- Utas akan dimuat di sini -->
-        </div>
+            </div>
     </div>
 
-    <!-- Notifikasi Toast -->
     <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white px-6 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
         <i class="fa-solid fa-circle-check"></i>
         <span id="toastMsg">Teks berhasil disalin!</span>
     </div>
 
     <script>
-        // Kunci API (disediakan oleh environment)
-        const apiKey = "";
-        
         // State Affiliate Mode
         let isAffiliateMode = true;
 
@@ -419,7 +427,7 @@
             textarea.select();
             try {
                 document.execCommand('copy');
-                showToast('Utas berhasil disalin!');
+                showToast('Teks berhasil disalin!');
             } catch (err) {
                 showToast('Gagal menyalin teks', true);
             }
@@ -436,8 +444,22 @@
             copyText(fullText.trim());
         }
 
-        // Fungsi Memanggil Gemini API
+        // Fungsi Memanggil Gemini API (SEKARANG MENGAMBIL DARI LOCALSTORAGE)
         async function callGeminiAPI(prompt, base64Img = null, mimeType = null) {
+            // Mengambil API Key milik pembeli dari memori browser
+            const apiKey = localStorage.getItem("pembeli_api_key");
+            
+            if (!apiKey) {
+                alert("API Key tidak ditemukan. Silakan masukkan di Layar Setup.");
+                // Tampilkan kembali layar setup untuk meminta API Key
+                document.getElementById("layar-setup").style.display = "flex";
+                document.getElementById("step-1").classList.add("hidden");
+                document.getElementById("step-1").classList.remove("block");
+                document.getElementById("step-2").classList.remove("hidden");
+                document.getElementById("step-2").classList.add("block");
+                throw new Error("Missing API Key");
+            }
+
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             
             // Susun muatan (payload) yang bisa menerima teks dan gambar sekaligus
@@ -472,7 +494,14 @@
                         body: JSON.stringify(payload)
                     });
 
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    if (!response.ok) {
+                        if (response.status === 400 || response.status === 403) {
+                            // Jika API Key Invalid atau Ditolak Google
+                            localStorage.removeItem("pembeli_api_key");
+                            alert("API Key tidak valid atau salah! Silakan refresh halaman dan masukkan ulang API Key yang benar.");
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     
                     const data = await response.json();
                     return data.candidates[0].content.parts[0].text;
@@ -617,7 +646,7 @@ Aturan format penting:
 
             } catch (error) {
                 console.error(error);
-                showToast('Gagal membuat utas. Silakan coba lagi.', true);
+                showToast('Gagal membuat utas. Pastikan API Key benar.', true);
             } finally {
                 // Kembalikan tombol ke semula
                 btn.disabled = false;
@@ -718,7 +747,7 @@ Aturan format penting:
 
             } catch (error) {
                 console.error(error);
-                showToast('Gagal membuat balasan. Silakan coba lagi.', true);
+                showToast('Gagal membuat balasan. Pastikan API Key benar.', true);
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('opacity-80', 'cursor-not-allowed');
