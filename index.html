@@ -39,7 +39,7 @@
 
         <div id="step-2" class="bg-[#1e293b] p-8 md:p-10 rounded-3xl border border-[#334155] text-center w-full max-w-md shadow-2xl hidden">
             <h2 class="text-2xl font-bold text-white mb-2">Hubungkan AI</h2>
-            <p class="text-slate-400 mb-5 text-sm text-left leading-relaxed">Untuk menyalakan fitur AI, masukkan Google Gemini API Key Anda. (Hanya diperlukan sekali).</p>
+            <p class="text-slate-400 mb-5 text-sm text-left leading-relaxed">Untuk menyalakan fitur AI, masukkan Google Gemini API Key Anda. Kunci akan disimpan aman di browser Anda.</p>
             
             <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg mb-6 text-left">
                 <p class="text-xs text-emerald-400 m-0"><i class="fa-regular fa-lightbulb mr-1"></i> <strong>Belum punya?</strong> Dapatkan gratis di <a href="https://aistudio.google.com/" target="_blank" class="text-emerald-300 underline hover:text-white transition-colors">Google AI Studio</a>.</p>
@@ -52,22 +52,34 @@
     </div>
 
     <script>
-        // GANTI TEKS DI BAWAH INI DENGAN PASSWORD RAHASIAMU YANG DIJUAL DI LNYK.ID
         const accessCodeRahasia = "THREADS2026"; 
+
+        // Auto-Login: Cek status saat web dibuka
+        document.addEventListener("DOMContentLoaded", () => {
+            const statusAkses = localStorage.getItem("akses_produk");
+            const apiKeyTersimpan = localStorage.getItem("pembeli_api_key");
+            
+            if (statusAkses === "TRUE" && apiKeyTersimpan) {
+                document.getElementById("layar-setup").style.display = "none";
+            } else if (statusAkses === "TRUE" && !apiKeyTersimpan) {
+                // Punya tiket masuk, tapi belum isi API Key
+                document.getElementById("step-1").classList.add("hidden");
+                document.getElementById("step-1").classList.remove("block");
+                document.getElementById("step-2").classList.remove("hidden");
+                document.getElementById("step-2").classList.add("block");
+            }
+        });
 
         function cekAccessCode() {
             const userInput = document.getElementById("input-access-code").value;
             if (userInput === accessCodeRahasia) {
                 document.getElementById("error-access").classList.add("hidden");
+                localStorage.setItem("akses_produk", "TRUE");
                 
-                // Cek apakah API Key sudah tersimpan di browser pembeli
                 const apiKeyTersimpan = localStorage.getItem("pembeli_api_key");
-                
                 if (apiKeyTersimpan) {
-                    // Langsung masuk aplikasi utama
                     document.getElementById("layar-setup").style.display = "none";
                 } else {
-                    // Pindah ke layar input API Key
                     document.getElementById("step-1").classList.add("hidden");
                     document.getElementById("step-1").classList.remove("block");
                     document.getElementById("step-2").classList.remove("hidden");
@@ -84,10 +96,21 @@
                 alert("API Key tidak boleh kosong.");
                 return;
             }
-            // Simpan API Key ke memori browser
             localStorage.setItem("pembeli_api_key", apiKeyInput);
-            // Masuk ke aplikasi utama
             document.getElementById("layar-setup").style.display = "none";
+        }
+
+        function bukaPengaturan() {
+            document.getElementById("layar-setup").style.display = "flex";
+            document.getElementById("step-1").classList.add("hidden");
+            document.getElementById("step-1").classList.remove("block");
+            document.getElementById("step-2").classList.remove("hidden");
+            document.getElementById("step-2").classList.add("block");
+            
+            const oldKey = localStorage.getItem("pembeli_api_key");
+            if (oldKey) {
+                document.getElementById("input-api-key").value = oldKey;
+            }
         }
     </script>
     <div class="w-full max-w-2xl flex justify-between items-center mb-8 px-2">
@@ -98,6 +121,9 @@
             <h1 class="text-2xl font-bold text-white tracking-wide">Asisten<br><span class="text-indigo-400">Threads</span></h1>
         </div>
         <div class="flex items-center gap-4">
+            <button onclick="bukaPengaturan()" class="text-slate-400 hover:text-indigo-400 transition-colors" title="Pengaturan API Key">
+                <i class="fa-solid fa-gear text-xl"></i>
+            </button>
             <button class="bg-[#1e293b] hover:bg-[#334155] px-4 py-2 rounded-full text-sm font-medium text-indigo-300 flex items-center gap-2 border border-[#334155] transition-colors">
                 <i class="fa-solid fa-paper-plane"></i> <span class="hidden sm:inline">Kritik & Saran</span>
             </button>
@@ -253,8 +279,7 @@
                 <i class="fa-regular fa-copy"></i> Salin Semua
             </button>
         </h3>
-        <div id="threadContainer" class="flex flex-col gap-4">
-            </div>
+        <div id="threadContainer" class="flex flex-col gap-4"></div>
     </div>
 
     <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white px-6 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
@@ -263,19 +288,14 @@
     </div>
 
     <script>
-        // State Affiliate Mode
         let isAffiliateMode = true;
-
-        // State Image
         let uploadedImageBase64 = null;
         let uploadedImageMimeType = null;
 
-        // Inisialisasi UI
         document.addEventListener('DOMContentLoaded', () => {
             updateAffiliateUI();
         });
 
-        // Fitur Tab Navigation
         function switchTab(tab) {
             const tabUtas = document.getElementById('tab-utas');
             const tabKomen = document.getElementById('tab-komen');
@@ -283,7 +303,6 @@
             const btnKomen = document.getElementById('btn-tab-komen');
             const resultArea = document.getElementById('resultArea');
 
-            // Sembunyikan hasil sebelumnya saat ganti tab
             resultArea.classList.add('hidden');
 
             if (tab === 'utas') {
@@ -305,7 +324,6 @@
             }
         }
 
-        // Toggle Affiliate Mode
         function toggleAffiliate() {
             isAffiliateMode = !isAffiliateMode;
             updateAffiliateUI();
@@ -332,43 +350,31 @@
             }
         }
 
-        // Set Topik Cepat
         function setTopic(text) {
             const topicInput = document.getElementById('topicInput');
             topicInput.value = text;
-            
-            // Matikan mode affiliate otomatis untuk fokus ke konten organik
             if (isAffiliateMode) {
                 toggleAffiliate();
                 showToast('Affiliate Mode dimatikan untuk konten organik');
             }
-            
-            // Efek visual highlight
             topicInput.classList.add('border-indigo-500', 'ring-1', 'ring-indigo-500');
             setTimeout(() => {
                 topicInput.classList.remove('border-indigo-500', 'ring-1', 'ring-indigo-500');
             }, 500);
         }
 
-        // Fitur Image Upload
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
-            // Validasi ukuran (maks 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showToast('Ukuran gambar maksimal 5MB', true);
                 event.target.value = '';
                 return;
             }
-
             uploadedImageMimeType = file.type;
             const reader = new FileReader();
-            
             reader.onload = function(e) {
                 uploadedImageBase64 = e.target.result;
-                
-                // Tampilkan preview
                 document.getElementById('uploadPlaceholder').classList.add('hidden');
                 document.getElementById('imagePreview').src = uploadedImageBase64;
                 document.getElementById('imagePreview').classList.remove('hidden');
@@ -376,19 +382,15 @@
                 document.getElementById('dropzone').classList.remove('border-dashed');
                 document.getElementById('dropzone').classList.add('border-indigo-500');
             };
-            
             reader.readAsDataURL(file);
         }
 
         function removeImage(event) {
-            event.preventDefault(); // Mencegah trigger label (buka file explorer lagi)
+            event.preventDefault(); 
             event.stopPropagation();
-            
             uploadedImageBase64 = null;
             uploadedImageMimeType = null;
             document.getElementById('imageUpload').value = '';
-            
-            // Kembalikan ke tampilan awal
             document.getElementById('uploadPlaceholder').classList.remove('hidden');
             document.getElementById('imagePreview').classList.add('hidden');
             document.getElementById('imagePreview').src = '';
@@ -397,13 +399,10 @@
             document.getElementById('dropzone').classList.remove('border-indigo-500');
         }
 
-        // Tampilkan Toast Notifikasi
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toastMsg');
-            
             toastMsg.textContent = message;
-            
             if (isError) {
                 toast.classList.replace('bg-emerald-600', 'bg-red-600');
                 toast.querySelector('i').classList.replace('fa-circle-check', 'fa-circle-exclamation');
@@ -411,15 +410,12 @@
                 toast.classList.replace('bg-red-600', 'bg-emerald-600');
                 toast.querySelector('i').classList.replace('fa-circle-exclamation', 'fa-circle-check');
             }
-
             toast.classList.remove('translate-y-20', 'opacity-0');
-            
             setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
         }
 
-        // Fungsi Salin Teks
         function copyText(text) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
@@ -434,41 +430,33 @@
             document.body.removeChild(textarea);
         }
 
-        // Salin Semua Utas
         function copyAll() {
             const threadCards = document.querySelectorAll('.thread-content');
             let fullText = '';
-            threadCards.forEach((card, index) => {
+            threadCards.forEach((card) => {
                 fullText += card.innerText + '\n\n';
             });
             copyText(fullText.trim());
         }
 
-        // Fungsi Memanggil Gemini API (SEKARANG MENGAMBIL DARI LOCALSTORAGE)
+        // FUNGSI MEMANGGIL API GEMINI
         async function callGeminiAPI(prompt, base64Img = null, mimeType = null) {
-            // Mengambil API Key milik pembeli dari memori browser
             const apiKey = localStorage.getItem("pembeli_api_key");
-            
             if (!apiKey) {
-                alert("API Key tidak ditemukan. Silakan masukkan di Layar Setup.");
-                // Tampilkan kembali layar setup untuk meminta API Key
-                document.getElementById("layar-setup").style.display = "flex";
-                document.getElementById("step-1").classList.add("hidden");
-                document.getElementById("step-1").classList.remove("block");
-                document.getElementById("step-2").classList.remove("hidden");
-                document.getElementById("step-2").classList.add("block");
+                alert("API Key tidak ditemukan. Silakan masukkan di Layar Pengaturan.");
+                bukaPengaturan();
                 throw new Error("Missing API Key");
             }
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            // MENGGUNAKAN VERSI STABIL
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             
-            // Susun muatan (payload) yang bisa menerima teks dan gambar sekaligus
             const parts = [{ text: prompt }];
             if (base64Img && mimeType) {
                 parts.push({
                     inlineData: {
                         mimeType: mimeType,
-                        data: base64Img.split(',')[1] // Buang awalan data:image/...
+                        data: base64Img.split(',')[1]
                     }
                 });
             }
@@ -482,9 +470,8 @@
                 }
             };
 
-            // Implementasi Exponential Backoff
-            const maxRetries = 5;
-            const delays = [1000, 2000, 4000, 8000, 16000];
+            const maxRetries = 3;
+            const delays = [1000, 2000, 4000];
 
             for (let i = 0; i < maxRetries; i++) {
                 try {
@@ -496,9 +483,9 @@
 
                     if (!response.ok) {
                         if (response.status === 400 || response.status === 403) {
-                            // Jika API Key Invalid atau Ditolak Google
                             localStorage.removeItem("pembeli_api_key");
-                            alert("API Key tidak valid atau salah! Silakan refresh halaman dan masukkan ulang API Key yang benar.");
+                            alert("API Key tidak valid atau salah! Silakan masukkan ulang API Key yang benar tanpa spasi.");
+                            bukaPengaturan();
                         }
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
@@ -513,7 +500,7 @@
             }
         }
 
-        // Proses Utama: Generate Thread
+        // GENERATE THREAD
         async function generateThread() {
             const topic = document.getElementById('topicInput').value.trim();
             const style = document.getElementById('threadStyle').options[document.getElementById('threadStyle').selectedIndex].text;
@@ -522,7 +509,6 @@
             const length = lengthSelect.options[lengthSelect.selectedIndex].text;
             const language = document.getElementById('threadLanguage').value;
             
-            // Validasi: Topik ATAU Gambar ATAU Affiliate Mode harus ada
             if (!topic && !uploadedImageBase64 && !isAffiliateMode) {
                 showToast('Harap masukkan teks topik, unggah foto, atau isi nama produk!', true);
                 document.getElementById('topicInput').focus();
@@ -541,47 +527,43 @@
                     return;
                 }
                 prodNameStr = prodName;
-                
                 let platformContext = platform === 'Lainnya' ? 'sebuah produk/layanan umum' : `produk affiliate ${platform}`;
                 
-                affiliatePrompt = `\n\n[INSTRUKSI PROMOSI - SANGAT PENTING]\nSaya sedang mempromosikan ${platformContext}. Kamu WAJIB menggunakan teknik SOFT-SELLING tingkat tinggi.\n- JANGAN kentara kalau ini postingan jualan/iklan.\n- Buat awalan utas berupa cerita, tips, opini, atau keluhan sehari-hari yang sangat "relatable" dengan target audiens.\n- Sisipkan produk "${prodName}" BUKAN sebagai bahan promosi langsung, tapi sebagai "rekomendasi jujur" atau "penemuan dari pengalaman pribadi" di pertengahan atau akhir utas.\n- Arahkan pembaca untuk mengecek produknya melalui tautan ini dengan bahasa yang sangat santai: "${prodLink}".`;
+                affiliatePrompt = `\n\n[INSTRUKSI PROMOSI]\nSaya mempromosikan ${platformContext}. Gunakan SOFT-SELLING. Jangan kentara jualan. Buat awalan cerita/tips relatable. Sisipkan "${prodName}" sebagai rekomendasi di pertengahan/akhir. Arahkan pembaca ke link ini: "${prodLink}".`;
             }
 
-            // Menyusun Prompt
             let prompt = "";
             if (uploadedImageBase64) {
-                prompt += `Tolong perhatikan foto/gambar yang saya lampirkan. Buatkan draf konten untuk platform Threads berdasarkan gambar tersebut.\n`;
-                if (topic) prompt += `Arahan tambahan/fokus spesifik dari saya: ${topic}\n`;
+                prompt += `Buatkan draf konten Threads berdasarkan gambar ini.\n`;
+                if (topic) prompt += `Fokus tambahan: ${topic}\n`;
             } else if (topic) {
-                prompt += `Buatkan draf konten untuk platform Threads berdasarkan detail berikut:\nTopik: ${topic}\n`;
+                prompt += `Buatkan draf konten Threads berdasarkan topik: ${topic}\n`;
             } else if (isAffiliateMode) {
-                prompt += `Buatkan draf konten (berupa cerita, opini, atau tips) untuk platform Threads yang mengalir natural, namun pada akhirnya menyinggung produk: ${prodNameStr}.\n`;
+                prompt += `Buatkan draf konten cerita/opini Threads natural, yang menyinggung produk: ${prodNameStr}.\n`;
             }
 
             const langInstruction = language === 'en' 
-                ? "TULIS SELURUH UTAS DALAM BAHASA INGGRIS (ENGLISH) yang natural seperti native speaker." 
-                : "TULIS SELURUH UTAS DALAM BAHASA INDONESIA yang gaul/natural sesuai gaya bahasa.";
+                ? "TULIS DALAM BAHASA INGGRIS (ENGLISH) natural." 
+                : "TULIS DALAM BAHASA INDONESIA gaul/natural.";
 
             let interactivePrompt = "";
             if (document.getElementById('threadStyle').value === 'interaktif') {
-                interactivePrompt = "\n[INSTRUKSI INTERAKTIF]\nWAJIB akhiri utas dengan pertanyaan terbuka yang kuat untuk memancing audiens membalas/berkomentar di kolom komentar (Call to Action untuk diskusi).";
+                interactivePrompt = "\n[INSTRUKSI INTERAKTIF]\nAkhiri utas dengan pertanyaan terbuka untuk memancing komentar.";
             }
 
             prompt += `
 Gaya Bahasa: ${style}
-Panjang Utas: ${length} ${lengthVal === 'satu_utas' ? '(WAJIB: HANYA BUAT 1 POSTINGAN TUNGGAL SAJA. JANGAN DIBAGI MENJADI BEBERAPA UTAS)' : ''}
+Panjang Utas: ${length} ${lengthVal === 'satu_utas' ? '(WAJIB: HANYA BUAT 1 POSTINGAN TUNGGAL)' : ''}
 Instruksi Bahasa: ${langInstruction}
 ${affiliatePrompt}
 ${interactivePrompt}
 
-Aturan format penting:
-1. PISAHKAN setiap bagian utas dengan simbol '|||' (tiga garis vertikal). Jangan gunakan angka penomoran biasa, cukup pisahkan dengan '|||'.
-2. Utas pertama harus sangat *hooking* (menarik perhatian).
-3. Buat pembacaan mengalir seolah-olah ditulis oleh manusia asli, bukan bot.
-4. [SANGAT KRITIS] BATAS KARAKTER: Setiap bagian utas (yang dipisahkan '|||') MAKSIMAL HARUS 450 KARAKTER. Dilarang keras melebihi 500 karakter per bagian karena batas sistem Threads!
+Aturan penting:
+1. PISAHKAN setiap bagian utas dengan simbol '|||'. Jangan gunakan penomoran, cukup '|||'.
+2. Utas pertama harus hooking.
+3. BATAS KARAKTER: Setiap bagian utas MAKSIMAL 450 KARAKTER!
 `;
 
-            // UI Loading State
             const btn = document.getElementById('generateBtn');
             const btnIcon = document.getElementById('btnIcon');
             const btnText = document.getElementById('btnText');
@@ -594,25 +576,19 @@ Aturan format penting:
             document.getElementById('resultArea').classList.add('hidden');
             const container = document.getElementById('threadContainer');
             container.innerHTML = '';
-            
-            // Set judul hasil ke mode utas
             document.querySelector('#resultArea h3 span').innerHTML = '<i class="fa-brands fa-threads text-white mr-2"></i> Hasil Utas Kamu';
 
             try {
-                // Panggil API
                 const resultText = await callGeminiAPI(prompt, uploadedImageBase64, uploadedImageMimeType);
                 
-                // Parsing hasil (memisahkan berdasarkan '|||')
                 const threads = resultText.split('|||')
                                           .map(t => t.trim())
                                           .filter(t => t.length > 0);
 
-                if (threads.length === 0) throw new Error("Format balasan AI tidak sesuai.");
+                if (threads.length === 0) throw new Error("Format AI salah.");
 
-                // Render ke layar
                 threads.forEach((threadText, index) => {
-                    // Membersihkan potensi markdown tebal (**) jika berlebihan
-                    const cleanText = threadText.replace(/^\d+[\.\/]\d*\s*/, '').trim(); // Hapus jika ada nomor di awal
+                    const cleanText = threadText.replace(/^\d+[\.\/]\d*\s*/, '').trim(); 
                     const charCount = cleanText.length;
                     const countColorClass = charCount > 500 ? 'text-red-400 font-bold' : 'text-slate-500';
                     
@@ -638,17 +614,15 @@ Aturan format penting:
                     container.appendChild(card);
                 });
 
-                // Tampilkan area hasil
                 document.getElementById('resultArea').classList.remove('hidden');
-                
-                // Scroll perlahan ke hasil
                 document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             } catch (error) {
                 console.error(error);
-                showToast('Gagal membuat utas. Pastikan API Key benar.', true);
+                if(error.message !== "Missing API Key") {
+                    showToast('Gagal membuat utas. Pastikan API Key benar.', true);
+                }
             } finally {
-                // Kembalikan tombol ke semula
                 btn.disabled = false;
                 btn.classList.remove('opacity-80', 'cursor-not-allowed');
                 btnIcon.className = "fa-solid fa-wand-magic-sparkles";
@@ -656,7 +630,7 @@ Aturan format penting:
             }
         }
 
-        // Proses Utama: Generate Reply (Komentar)
+        // GENERATE REPLY
         async function generateReply() {
             const targetText = document.getElementById('targetCommentInput').value.trim();
             const toneSelect = document.getElementById('replyTone');
@@ -670,26 +644,22 @@ Aturan format penting:
             }
 
             const langInstruction = language === 'en' 
-                ? "TULIS SELURUH BALASAN DALAM BAHASA INGGRIS (ENGLISH) kasual medsos yang natural." 
-                : "TULIS SELURUH BALASAN DALAM BAHASA INDONESIA gaul/kasual ala warga Threads.";
+                ? "TULIS DALAM BAHASA INGGRIS (ENGLISH) kasual." 
+                : "TULIS DALAM BAHASA INDONESIA gaul/kasual.";
 
             const prompt = `
-Bantu saya membalas sebuah utas/komentar orang lain di Threads agar terjadi interaksi (engagement).
-
+Bantu saya membalas utas Threads agar terjadi engagement.
 Utas Target: "${targetText}"
-
 Gaya Balasan: ${tone}
 Instruksi Bahasa: ${langInstruction}
 
-Aturan format penting:
-1. Berikan tepat 3 variasi pilihan balasan yang berbeda-beda.
-2. Setiap balasan harus singkat (maksimal 2-3 kalimat), natural, tidak kaku, layaknya interaksi asli manusia di sosmed.
-3. Gunakan emoji secukupnya.
-4. PISAHKAN setiap variasi balasan dengan simbol '|||' (tiga garis vertikal). Jangan berikan kata pengantar, langsung berikan pilihan balasannya yang dipisah oleh '|||'.
-5. [SANGAT KRITIS] BATAS KARAKTER: Setiap variasi balasan TIDAK BOLEH melebihi 400 karakter!
+Aturan:
+1. Berikan tepat 3 variasi balasan berbeda.
+2. Setiap balasan maksimal 2-3 kalimat, natural.
+3. PISAHKAN setiap variasi dengan simbol '|||'. Jangan berikan kata pengantar.
+4. BATAS KARAKTER: Maksimal 400 karakter per balasan!
 `;
 
-            // UI Loading State
             const btn = document.getElementById('generateReplyBtn');
             const btnIcon = document.getElementById('btnReplyIcon');
             const btnText = document.getElementById('btnReplyText');
@@ -702,8 +672,6 @@ Aturan format penting:
             document.getElementById('resultArea').classList.add('hidden');
             const container = document.getElementById('threadContainer');
             container.innerHTML = '';
-
-            // Set judul hasil ke mode komentar
             document.querySelector('#resultArea h3 span').innerHTML = '<i class="fa-solid fa-reply text-indigo-400 mr-2"></i> Pilihan Ide Balasan Kamu';
 
             try {
@@ -713,7 +681,7 @@ Aturan format penting:
                                           .map(t => t.trim())
                                           .filter(t => t.length > 0);
 
-                if (threads.length === 0) throw new Error("Format balasan AI tidak sesuai.");
+                if (threads.length === 0) throw new Error("Format AI salah.");
 
                 threads.forEach((threadText, index) => {
                     const cleanText = threadText.replace(/^\d+[\.\/]\d*\s*/, '').trim(); 
@@ -747,7 +715,9 @@ Aturan format penting:
 
             } catch (error) {
                 console.error(error);
-                showToast('Gagal membuat balasan. Pastikan API Key benar.', true);
+                if(error.message !== "Missing API Key") {
+                    showToast('Gagal membuat balasan. Pastikan API Key benar.', true);
+                }
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('opacity-80', 'cursor-not-allowed');
